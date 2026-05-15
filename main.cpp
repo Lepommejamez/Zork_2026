@@ -32,7 +32,7 @@ public:
         }
         else
         {
-            cout << "Nothing happens." << endl;
+            cout << "I'm not sure what I expected to happen." << endl;
         }
     }
 
@@ -55,7 +55,7 @@ public:
 
     void Use() override
     {
-        cout << "You swing the " << name << "." << endl;
+        cout << "I swing the " << name << ". Feels good in my hand." << endl;
     }
 };
 
@@ -71,19 +71,19 @@ public:
 
     void Use() override
     {
-        cout << "You open the " << name << "." << endl;
+        cout << "I open the " << name << "." << endl;
 
         if (items.empty())
         {
-            cout << "It is empty." << endl;
+            cout << "Nothing inside. Figures." << endl;
         }
         else
         {
-            cout << "Inside you find:" << endl;
+            cout << "Let's see what's in here..." << endl;
 
             for (const Item* item : items)
             {
-                cout << "- " << item->name << endl;
+                cout << "  - " << item->name << endl;
             }
         }
     }
@@ -99,7 +99,7 @@ public:
 
     void Use() override
     {
-        cout << "You use the " << name << "." << endl;
+        cout << "I fiddle with the " << name << ". Nothing useful comes of it." << endl;
     }
 };
 
@@ -132,7 +132,7 @@ void ShowRoom(const Room* room)
     cout << room->description << endl;
     cout << endl;
 
-    cout << "Exits: ";
+    cout << "I could head: ";
     if (room->north != nullptr) cout << "north ";
     if (room->south != nullptr) cout << "south ";
     if (room->east  != nullptr) cout << "east ";
@@ -143,18 +143,18 @@ void ShowRoom(const Room* room)
 void ShowHelp()
 {
     cout << endl;
-    cout << "Available commands:" << endl;
-    cout << "  - north / south / east / west" << endl;
-    cout << "  - look" << endl;
-    cout << "  - inspect" << endl;
-    cout << "  - pick up <item>" << endl;
-    cout << "  - drop <item>" << endl;
-    cout << "  - put <item> in <container>" << endl;
-    cout << "  - take <item> from <container>" << endl;
-    cout << "  - equip <item>" << endl;
-    cout << "  - inventory" << endl;
-    cout << "  - help" << endl;
-    cout << "  - quit" << endl;
+    cout << "Let me think about what I can do..." << endl;
+    cout << "  - north / south / east / west  (move around)" << endl;
+    cout << "  - look                         (take in my surroundings)" << endl;
+    cout << "  - inspect                      (look for anything useful)" << endl;
+    cout << "  - pick up <item>               (grab something)" << endl;
+    cout << "  - drop <item>                  (leave something behind)" << endl;
+    cout << "  - put <item> in <container>    (stash something away)" << endl;
+    cout << "  - take <item> from <container> (fish something out)" << endl;
+    cout << "  - equip <item>                 (get a weapon ready)" << endl;
+    cout << "  - inventory                    (check what I'm carrying)" << endl;
+    cout << "  - help                         (think this through again)" << endl;
+    cout << "  - quit                         (give up)" << endl;
     cout << endl;
 }
 
@@ -192,17 +192,17 @@ void ShowInventory(const Player& player)
 {
     if (player.inventory.empty())
     {
-        cout << "Your inventory is empty." << endl;
+        cout << "I'm not carrying anything. Probably should fix that." << endl;
         return;
     }
 
-    cout << "You are carrying:" << endl;
+    cout << "Let's see what I've got on me:" << endl;
     for (const Item* item : player.inventory)
     {
         cout << "  - " << item->name;
 
         if (player.equippedWeapon == item)
-            cout << " (equipped)";
+            cout << " (in hand)";
 
         cout << endl;
     }
@@ -289,7 +289,7 @@ int main()
 
     Room outside;
     outside.name        = "Outside";
-    outside.description = "You step outside. The sun is blinding after the gloom indoors.";
+    outside.description = "I step outside. The sun is blinding after the gloom indoors.";
     outside.items.push_back(&rock);
     outside.items.push_back(&brokenKey);
 
@@ -324,7 +324,7 @@ int main()
 
         if (command == "quit")
         {
-            cout << "Goodbye." << endl;
+            cout << "Yeah... maybe another time." << endl;
             break;
         }
         else if (command == "help")
@@ -339,11 +339,11 @@ int main()
         {
             if (currentRoom->items.empty())
             {
-                cout << "There is nothing of interest here." << endl;
+                cout << "I look around. Nothing worth grabbing." << endl;
             }
             else
             {
-                cout << "You look around and see:" << endl;
+                cout << "I scan the room. I can make out:" << endl;
                 for (const Item* item : currentRoom->items)
                 {
                     cout << "  - " << item->name << endl;
@@ -361,18 +361,17 @@ int main()
 
             if (item == nullptr)
             {
-                cout << "There is no " << itemName << " here." << endl;
+                cout << "I don't see any " << itemName << " here." << endl;
             }
             else
             {
                 player.inventory.push_back(item);
-                cout << "You pick up the " << item->name << "." << endl;
+                cout << "I grab the " << item->name << " and pocket it." << endl;
 
                 // Notify the player if it is a weapon so they know to equip it
                 if (dynamic_cast<Weapon*>(item) != nullptr)
                 {
-                    cout << "It's a weapon. Use 'equip " << item->name
-                         << "' to equip it." << endl;
+                    cout << "Could be useful in a fight. I should equip it." << endl;
                 }
             }
         }
@@ -383,7 +382,7 @@ int main()
 
             if (item == nullptr)
             {
-                cout << "You are not carrying a " << itemName << "." << endl;
+                cout << "I don't have a " << itemName << " on me." << endl;
             }
             else
             {
@@ -392,7 +391,7 @@ int main()
                     player.equippedWeapon = nullptr;
 
                 currentRoom->items.push_back(item);
-                cout << "You drop the " << item->name << "." << endl;
+                cout << "I leave the " << item->name << " behind." << endl;
             }
         }
         else if (command.substr(0, 6) == "equip ")
@@ -412,7 +411,7 @@ int main()
 
             if (found == nullptr)
             {
-                cout << "You don't have a " << itemName << "." << endl;
+                cout << "I don't have a " << itemName << "." << endl;
             }
             else
             {
@@ -420,12 +419,12 @@ int main()
 
                 if (weapon == nullptr)
                 {
-                    cout << "The " << itemName << " is not a weapon." << endl;
+                    cout << "I can't really fight with a " << itemName << "." << endl;
                 }
                 else
                 {
                     player.equippedWeapon = weapon;
-                    cout << "You equip the " << weapon->name << "." << endl;
+                    cout << "I get the " << weapon->name << " ready." << endl;
                 }
             }
         }
@@ -436,7 +435,7 @@ int main()
 
             if (inPos == string::npos)
             {
-                cout << "Put what in what? Try: put <item> in <container>" << endl;
+                cout << "Put what where? Try: put <item> in <container>" << endl;
             }
             else
             {
@@ -448,7 +447,7 @@ int main()
 
                 if (item == nullptr)
                 {
-                    cout << "You are not carrying a " << itemName << "." << endl;
+                    cout << "I don't have a " << itemName << " on me." << endl;
                 }
                 else
                 {
@@ -458,7 +457,7 @@ int main()
                     {
                         // Item was already removed from inventory, put it back
                         player.inventory.push_back(item);
-                        cout << "There is no " << containerName << " here." << endl;
+                        cout << "I don't see a " << containerName << " anywhere." << endl;
                     }
                     else
                     {
@@ -467,8 +466,8 @@ int main()
                             player.equippedWeapon = nullptr;
 
                         container->items.push_back(item);
-                        cout << "You put the " << item->name
-                             << " in the " << container->name << "." << endl;
+                        cout << "I tuck the " << item->name
+                             << " into the " << container->name << "." << endl;
                     }
                 }
             }
@@ -480,7 +479,7 @@ int main()
 
             if (fromPos == string::npos)
             {
-                cout << "Take what from what? Try: take <item> from <container>" << endl;
+                cout << "Take what from where? Try: take <item> from <container>" << endl;
             }
             else
             {
@@ -491,7 +490,7 @@ int main()
 
                 if (container == nullptr)
                 {
-                    cout << "There is no " << containerName << " here." << endl;
+                    cout << "I don't see a " << containerName << " anywhere." << endl;
                 }
                 else
                 {
@@ -499,19 +498,18 @@ int main()
 
                     if (item == nullptr)
                     {
-                        cout << "There is no " << itemName
+                        cout << "There's no " << itemName
                              << " in the " << container->name << "." << endl;
                     }
                     else
                     {
                         player.inventory.push_back(item);
-                        cout << "You take the " << item->name
-                             << " from the " << container->name << "." << endl;
+                        cout << "I pull the " << item->name
+                             << " out of the " << container->name << "." << endl;
 
                         if (dynamic_cast<Weapon*>(item) != nullptr)
                         {
-                            cout << "It's a weapon. Use 'equip " << item->name
-                                 << "' to equip it." << endl;
+                            cout << "Could be useful in a fight. I should equip it." << endl;
                         }
                     }
                 }
@@ -529,7 +527,7 @@ int main()
 
             if (next == nullptr)
             {
-                cout << "You can't go that way." << endl;
+                cout << "Nothing that way. I'd just walk into a wall." << endl;
             }
             else
             {
@@ -539,7 +537,7 @@ int main()
         }
         else
         {
-            cout << "Unknown command. Type 'help' for a list of commands." << endl;
+            cout << "I'm not sure what I mean by that. Maybe try 'help'." << endl;
         }
     }
 
