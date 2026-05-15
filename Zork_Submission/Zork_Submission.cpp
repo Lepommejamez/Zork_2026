@@ -6,8 +6,6 @@
 #include "player.h"
 #include "world.h"
 
-
-
 using namespace std;
 
 // =====================================================================
