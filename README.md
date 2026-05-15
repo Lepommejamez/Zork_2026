@@ -90,6 +90,10 @@ hierarchies for each concept. It achieves the same end goal and I think the rela
 between classes are easier to reason about this way, but I wanted to flag the departure
 in case it reads as an oversight.
 
+**On the language:** This was my first time writing C++. Coming in with no prior experience
+with the language meant a lot of the development time went toward understanding the basics —
+memory management, pointers, the type system — before I could focus on the game itself.
+
 **On tooling:** I normally work in VS Code, so setting up and working inside Visual Studio
 was a bigger time sink than expected. Getting comfortable with the project structure,
 build configuration, and the IDE's quirks ate up a meaningful chunk of the time I had
