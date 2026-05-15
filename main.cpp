@@ -149,6 +149,8 @@ void ShowHelp()
     cout << "  - inspect" << endl;
     cout << "  - pick up <item>" << endl;
     cout << "  - drop <item>" << endl;
+    cout << "  - put <item> in <container>" << endl;
+    cout << "  - take <item> from <container>" << endl;
     cout << "  - equip <item>" << endl;
     cout << "  - inventory" << endl;
     cout << "  - help" << endl;
@@ -204,6 +206,27 @@ void ShowInventory(const Player& player)
 
         cout << endl;
     }
+}
+
+// Searches the room and player inventory for a Container with the given name.
+// Returns nullptr if not found or if the item found is not a Container.
+Container* FindContainer(const string& containerName, Room* room, Player& player)
+{
+    // Check room items first
+    for (Item* item : room->items)
+    {
+        if (item->name == containerName)
+            return dynamic_cast<Container*>(item);
+    }
+
+    // Then check player inventory
+    for (Item* item : player.inventory)
+    {
+        if (item->name == containerName)
+            return dynamic_cast<Container*>(item);
+    }
+
+    return nullptr;
 }
 
 // =====================================================================
@@ -403,6 +426,94 @@ int main()
                 {
                     player.equippedWeapon = weapon;
                     cout << "You equip the " << weapon->name << "." << endl;
+                }
+            }
+        }
+        else if (command.substr(0, 4) == "put ")
+        {
+            // Expected format: "put <item> in <container>"
+            size_t inPos = command.find(" in ");
+
+            if (inPos == string::npos)
+            {
+                cout << "Put what in what? Try: put <item> in <container>" << endl;
+            }
+            else
+            {
+                string itemName      = command.substr(4, inPos - 4);
+                string containerName = command.substr(inPos + 4);
+
+                // Item must be in the player's inventory
+                Item* item = TakeItemByName(player.inventory, itemName);
+
+                if (item == nullptr)
+                {
+                    cout << "You are not carrying a " << itemName << "." << endl;
+                }
+                else
+                {
+                    Container* container = FindContainer(containerName, currentRoom, player);
+
+                    if (container == nullptr)
+                    {
+                        // Item was already removed from inventory, put it back
+                        player.inventory.push_back(item);
+                        cout << "There is no " << containerName << " here." << endl;
+                    }
+                    else
+                    {
+                        // Unequip if putting away the equipped weapon
+                        if (player.equippedWeapon == item)
+                            player.equippedWeapon = nullptr;
+
+                        container->items.push_back(item);
+                        cout << "You put the " << item->name
+                             << " in the " << container->name << "." << endl;
+                    }
+                }
+            }
+        }
+        else if (command.substr(0, 5) == "take ")
+        {
+            // Expected format: "take <item> from <container>"
+            size_t fromPos = command.find(" from ");
+
+            if (fromPos == string::npos)
+            {
+                cout << "Take what from what? Try: take <item> from <container>" << endl;
+            }
+            else
+            {
+                string itemName      = command.substr(5, fromPos - 5);
+                string containerName = command.substr(fromPos + 6);
+
+                Container* container = FindContainer(containerName, currentRoom, player);
+
+                if (container == nullptr)
+                {
+                    cout << "There is no " << containerName << " here." << endl;
+                }
+                else
+                {
+                    Item* item = TakeItemByName(container->items, itemName);
+
+                    if (item == nullptr)
+                    {
+                        cout << "There is no " << itemName
+                             << " in the " << container->name << "." << endl;
+                    }
+                    else
+                    {
+                        player.inventory.push_back(item);
+                        cout << "You take the " << item->name
+                             << " from the " << container->name << "." << endl;
+
+                        if (dynamic_cast<Weapon*>(item) != nullptr)
+                        {
+                            cout << "It's a weapon. Use 'equip " << item->name
+                                 << "' to equip it." << endl;
+                        }
+                    }
                 }
             }
         }
