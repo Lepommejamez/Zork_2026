@@ -117,6 +117,10 @@ public:
     Room* south = nullptr;
     Room* east  = nullptr;
     Room* west  = nullptr;
+    Room* down  = nullptr;
+    Room* up    = nullptr;
+
+    bool isLocked = false;  // if true, player needs the basement key to enter
 
     vector<Item*> items;
 };
@@ -137,6 +141,8 @@ void ShowRoom(const Room* room)
     if (room->south != nullptr) cout << "south ";
     if (room->east  != nullptr) cout << "east ";
     if (room->west  != nullptr) cout << "west ";
+    if (room->down  != nullptr) cout << "down ";
+    if (room->up    != nullptr) cout << "up ";
     cout << endl;
 }
 
@@ -144,7 +150,7 @@ void ShowHelp()
 {
     cout << endl;
     cout << "Let me think about what I can do..." << endl;
-    cout << "  - north / south / east / west  (move around)" << endl;
+    cout << "  - north / south / east / west / down / up  (move around)" << endl;
     cout << "  - look                         (take in my surroundings)" << endl;
     cout << "  - inspect                      (look for anything useful)" << endl;
     cout << "  - pick up <item>               (grab something)" << endl;
@@ -264,6 +270,18 @@ int main()
     GenericItem rock      ("rock",        "A fist-sized rock. Satisfyingly heavy.");
     GenericItem brokenKey ("broken key",  "Half a key. Useless on its own.");
 
+    // Bedroom items
+    Container   wardrobe    ("wardrobe",     "An old wardrobe. The door creaks when I open it.");
+    GenericItem basementKey ("basement key", "A small iron key. A tag on it reads 'basement'.");
+    GenericItem dustyJacket ("dusty jacket", "Someone's old jacket. Hasn't been worn in years.");
+
+    // Basement key is hidden inside the wardrobe
+    wardrobe.items.push_back(&basementKey);
+
+    // Basement items
+    GenericItem oldPapers  ("old papers",  "A stack of yellowed documents. Hard to make out.");
+    GenericItem brokenLamp ("broken lamp", "A floor lamp, snapped at the base. Useless now.");
+
     // -----------------------------------------------------------------
     // Rooms
     // -----------------------------------------------------------------
@@ -281,6 +299,12 @@ int main()
     livingRoom.items.push_back(&tvRemote);
     livingRoom.items.push_back(&newspaper);
 
+    Room bedroom;
+    bedroom.name        = "Bedroom";
+    bedroom.description = "A small, dim bedroom. Smells stale. There's a wardrobe in the corner.";
+    bedroom.items.push_back(&wardrobe);
+    bedroom.items.push_back(&dustyJacket);
+
     Room garage;
     garage.name        = "Garage";
     garage.description = "A dark garage. Oil stains cover the concrete floor.";
@@ -293,19 +317,32 @@ int main()
     outside.items.push_back(&rock);
     outside.items.push_back(&brokenKey);
 
+    Room basement;
+    basement.name        = "Basement";
+    basement.description = "It's damp down here. The air is thick and the light barely reaches the corners.";
+    basement.isLocked    = true;
+    basement.items.push_back(&oldPapers);
+    basement.items.push_back(&brokenLamp);
+
     // -----------------------------------------------------------------
     // Connect rooms
     // -----------------------------------------------------------------
 
     kitchen.west    = &livingRoom;
     kitchen.south   = &garage;
+    kitchen.north   = &outside;
+    kitchen.down    = &basement;
 
     livingRoom.east  = &kitchen;
-    livingRoom.north = &outside;
+    livingRoom.west  = &bedroom;
+
+    bedroom.east    = &livingRoom;
 
     garage.north    = &kitchen;
 
-    outside.south   = &livingRoom;
+    outside.south   = &kitchen;
+
+    basement.up     = &kitchen;
 
     // -----------------------------------------------------------------
     // Game loop
@@ -516,7 +553,8 @@ int main()
             }
         }
         else if (command == "north" || command == "south" ||
-                 command == "east"  || command == "west")
+                 command == "east"  || command == "west"  ||
+                 command == "down"  || command == "up")
         {
             Room* next = nullptr;
 
@@ -524,10 +562,36 @@ int main()
             if (command == "south") next = currentRoom->south;
             if (command == "east")  next = currentRoom->east;
             if (command == "west")  next = currentRoom->west;
+            if (command == "down")  next = currentRoom->down;
+            if (command == "up")    next = currentRoom->up;
 
             if (next == nullptr)
             {
                 cout << "Nothing that way. I'd just walk into a wall." << endl;
+            }
+            else if (next->isLocked)
+            {
+                // Check if the player has the basement key anywhere in their inventory
+                bool hasKey = false;
+                for (const Item* item : player.inventory)
+                {
+                    if (item->name == "basement key")
+                    {
+                        hasKey = true;
+                        break;
+                    }
+                }
+
+                if (!hasKey)
+                {
+                    cout << "The door is locked tight. There must be a key somewhere." << endl;
+                }
+                else
+                {
+                    cout << "I try the key. It fits. The door groans open." << endl;
+                    currentRoom = next;
+                    ShowRoom(currentRoom);
+                }
             }
             else
             {
