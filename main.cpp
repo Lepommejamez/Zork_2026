@@ -16,7 +16,7 @@ public:
     string pickupText;
     string useText;
 
-    Item(string itemName, string itemDescription)
+    Item(const string& itemName, const string& itemDescription)
     {
         name = itemName;
         description = itemDescription;
@@ -36,7 +36,7 @@ public:
         }
     }
 
-    virtual void Inspect()
+    virtual void Inspect() const
     {
         cout << description << endl;
     }
@@ -47,7 +47,7 @@ class Weapon : public Item
 public:
     int damage;
 
-    Weapon(string itemName, string itemDescription, int itemDamage)
+    Weapon(const string& itemName, const string& itemDescription, int itemDamage)
         : Item(itemName, itemDescription)
     {
         damage = itemDamage;
@@ -64,7 +64,7 @@ class Container : public Item
 public:
     vector<Item*> items;
 
-    Container(string itemName, string itemDescription)
+    Container(const string& itemName, const string& itemDescription)
         : Item(itemName, itemDescription)
     {
     }
@@ -81,7 +81,7 @@ public:
         {
             cout << "Inside you find:" << endl;
 
-            for (Item* item : items)
+            for (const Item* item : items)
             {
                 cout << "- " << item->name << endl;
             }
@@ -92,7 +92,7 @@ public:
 class GenericItem : public Item
 {
 public:
-    GenericItem(string itemName, string itemDescription)
+    GenericItem(const string& itemName, const string& itemDescription)
         : Item(itemName, itemDescription)
     {
     }
@@ -125,7 +125,7 @@ public:
 // Display helpers
 // =====================================================================
 
-void ShowRoom(Room* room)
+void ShowRoom(const Room* room)
 {
     cout << endl;
     cout << "=== " << room->name << " ===" << endl;
@@ -197,7 +197,7 @@ void ShowInventory(const Player& player)
     }
 
     cout << "You are carrying:" << endl;
-    for (Item* item : player.inventory)
+    for (const Item* item : player.inventory)
     {
         cout << "  - " << item->name;
 
@@ -344,7 +344,7 @@ int main()
             else
             {
                 cout << "You look around and see:" << endl;
-                for (Item* item : currentRoom->items)
+                for (const Item* item : currentRoom->items)
                 {
                     cout << "  - " << item->name << endl;
                 }
